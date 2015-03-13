@@ -72,6 +72,10 @@
     [super viewDidLoad];
     // register option cell
     [self.tableView registerClass:[XLFormRightDetailCell class] forCellReuseIdentifier:CELL_REUSE_IDENTIFIER];
+    
+    [_rowDescriptor.selectorControllerConfig enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, id value, BOOL * __unused stop) {
+        [self setValue:(value == [NSNull null]) ? nil : value forKeyPath:keyPath];
+    }];
 }
 
 
@@ -98,6 +102,11 @@
             cell.accessoryType = UITableViewCellAccessoryNone;
         }
     }
+    
+    [_rowDescriptor.selectorControllerCellConfig enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, id value, BOOL * __unused stop) {
+        [cell setValue:(value == [NSNull null]) ? nil : value forKeyPath:keyPath];
+    }];
+    
     return cell;
 }
 
@@ -131,10 +140,13 @@
     }
     else{
         if ([[self.rowDescriptor.value valueData] isEqual:[cellObject valueData]]){
-            if (!self.rowDescriptor.required){
-                self.rowDescriptor.value = nil;
-            }
-            cell.accessoryType = UITableViewCellAccessoryNone;
+            
+            [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+            return;
+//            if (!self.rowDescriptor.required){
+//                self.rowDescriptor.value = nil;
+//            }
+//            cell.accessoryType = UITableViewCellAccessoryNone;
         }
         else{
             if (self.rowDescriptor.value){

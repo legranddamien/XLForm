@@ -76,7 +76,7 @@
             [self addSubview:_placeHolderLabel];
         }
         _placeHolderLabel.text = self.placeholder;
-        _placeHolderLabel.font = self.font;
+        _placeHolderLabel.font = (self.placeholderFont) ? self.placeholderFont : self.font;
         [_placeHolderLabel sizeToFit];
         [self sendSubviewToBack:_placeHolderLabel];
     }

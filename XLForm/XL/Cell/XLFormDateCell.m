@@ -60,7 +60,7 @@
 
 -(BOOL)resignFirstResponder
 {
-    self.detailTextLabel.textColor = _beforeChangeColor;
+    //self.detailTextLabel.textColor = _beforeChangeColor;
     if ([self.rowDescriptor.rowType isEqualToString:XLFormRowDescriptorTypeDateInline] || [self.rowDescriptor.rowType isEqualToString:XLFormRowDescriptorTypeTimeInline] || [self.rowDescriptor.rowType isEqualToString:XLFormRowDescriptorTypeDateTimeInline])
     {
         NSIndexPath * selectedRowPath = [self.formViewController.form indexPathOfFormRow:self.rowDescriptor];
@@ -88,13 +88,13 @@
     
     self.accessoryType =  UITableViewCellAccessoryNone;
     [self.textLabel setText:self.rowDescriptor.title];
-    self.textLabel.textColor  = self.rowDescriptor.disabled ? [UIColor grayColor] : [UIColor blackColor];
+    //self.textLabel.textColor  = self.rowDescriptor.disabled ? [UIColor grayColor] : [UIColor blackColor];
     self.selectionStyle = self.rowDescriptor.disabled ? UITableViewCellSelectionStyleNone : UITableViewCellSelectionStyleDefault;
     
     self.textLabel.text = [NSString stringWithFormat:@"%@%@", self.rowDescriptor.title, self.rowDescriptor.required && self.rowDescriptor.sectionDescriptor.formDescriptor.addAsteriskToRequiredRowsTitle ? @"*" : @""];
     self.detailTextLabel.text = [self valueDisplayText];
-    self.textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-    self.detailTextLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    //self.textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    //self.detailTextLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     
 }
 
@@ -108,7 +108,7 @@
         else{
             [self becomeFirstResponder];
             _beforeChangeColor = self.detailTextLabel.textColor;
-            self.detailTextLabel.textColor = self.formViewController.view.tintColor;
+            //self.detailTextLabel.textColor = self.formViewController.view.tintColor;
             NSIndexPath * selectedRowPath = [controller.form indexPathOfFormRow:self.rowDescriptor];
             NSIndexPath * nextRowPath = [NSIndexPath indexPathForRow:(selectedRowPath.row + 1) inSection:selectedRowPath.section];
             XLFormSectionDescriptor * formSection = [controller.form.formSections objectAtIndex:nextRowPath.section];
@@ -177,6 +177,13 @@
     
     if (self.maximumDate)
         datePicker.maximumDate = self.maximumDate;
+    
+    if (self.timeZone)
+    {
+        datePicker.timeZone = self.timeZone;
+        datePicker.calendar = [NSCalendar currentCalendar];
+        [_dateFormatter setTimeZone:self.timeZone];
+    }
 }
 
 #pragma mark - Properties

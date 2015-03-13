@@ -45,6 +45,8 @@
         NSAssert(((![rowType isEqualToString:XLFormRowDescriptorTypeSelectorPopover] && ![rowType isEqualToString:XLFormRowDescriptorTypeMultipleSelectorPopover]) || (([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) && ([rowType isEqualToString:XLFormRowDescriptorTypeSelectorPopover] || [rowType isEqualToString:XLFormRowDescriptorTypeMultipleSelectorPopover]))), @"You must be running under UIUserInterfaceIdiomPad to use either XLFormRowDescriptorTypeSelectorPopover or XLFormRowDescriptorTypeMultipleSelectorPopover rows.");
         _tag = tag;
         _disabled = NO;
+        _showSelection = NO;
+        _hideSeparator = NO;
         _rowType = rowType;
         _title = title;
         _cellStyle = UITableViewCellStyleValue1;
@@ -108,6 +110,20 @@
     return _cellConfigAtConfigure;
 }
 
+-(NSMutableDictionary *)selectorControllerConfig
+{
+    if (_selectorControllerConfig) return _selectorControllerConfig;
+    _selectorControllerConfig = [NSMutableDictionary dictionary];
+    return _selectorControllerConfig;
+}
+
+-(NSMutableDictionary *)selectorControllerCellConfig
+{
+    if (_selectorControllerCellConfig) return _selectorControllerCellConfig;
+    _selectorControllerCellConfig = [NSMutableDictionary dictionary];
+    return _selectorControllerCellConfig;
+}
+
 -(NSString *)description
 {
     return [NSString stringWithFormat:@"%@ - %@ (%@)", [super description], self.tag, self.rowType];
@@ -135,6 +151,8 @@
     rowDescriptorCopy.cellConfigAtConfigure = [self.cellConfigAtConfigure mutableCopy];
     rowDescriptorCopy.disabled = self.disabled;
     rowDescriptorCopy.required = self.required;
+    rowDescriptorCopy.showSelection = self.showSelection;
+    rowDescriptorCopy.hideSeparator = self.hideSeparator;
     
     // =====================
     // properties for Button

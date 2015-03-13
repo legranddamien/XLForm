@@ -25,6 +25,12 @@
 
 #import "XLFormBaseCell.h"
 
+@interface XLFormBaseCell ()
+
+@property (nonatomic, weak) UIView *selectionView;
+
+@end
+
 @implementation XLFormBaseCell
 
 - (id)init
@@ -45,6 +51,7 @@
 -(void)setRowDescriptor:(XLFormRowDescriptor *)rowDescriptor
 {
     _rowDescriptor = rowDescriptor;
+    self.showSelection = _rowDescriptor.showSelection;
     [self update];
 }
 
@@ -57,6 +64,45 @@
 - (void)update
 {
     // override
+}
+
+- (void)setShowSelection:(BOOL)showSelection
+{
+    if(_showSelection == showSelection) return;
+    _rowDescriptor.showSelection = showSelection;
+    _showSelection = showSelection;
+    
+    CGFloat w = 0;
+    if(_showSelection)
+    {
+        w = 6;
+        if(_selectionView == nil)
+        {
+            UIView *selectionView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 0, self.contentView.bounds.size.height)];
+            selectionView.backgroundColor = [UIColor darkGrayColor];
+            [self addSubview:selectionView];
+            _selectionView = selectionView;
+        }
+    }
+    
+    [UIView animateWithDuration:0.2 delay:0.0 options:UIViewAnimationOptionBeginFromCurrentState|UIViewAnimationOptionCurveEaseOut animations:^{
+        _selectionView.frame = CGRectMake(0, 0, w, _selectionView.bounds.size.height);
+        self.indentationWidth = w;
+    } completion:nil];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    if(_selectionView)
+    {
+        CGRect frame = _selectionView.frame;
+        if(frame.size.height != self.contentView.bounds.size.height)
+        {
+            frame.size.height = self.contentView.bounds.size.height;
+            _selectionView.frame = frame;
+        }
+    }
 }
 
 -(XLFormViewController *)formViewController

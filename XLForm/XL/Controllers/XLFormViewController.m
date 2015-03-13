@@ -34,6 +34,8 @@
 
 @property UITableViewStyle tableViewStyle;
 
+@property (nonatomic) CGPoint offsetBeforeDisapear;
+
 @end
 
 @implementation XLFormViewController
@@ -86,6 +88,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    _offsetBeforeDisapear = CGPointMake(100, 0);
+    
     if (!self.tableView){
         self.tableView = [[UITableView alloc] initWithFrame:self.view.bounds
                                                       style:self.tableViewStyle];
@@ -115,12 +120,16 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    
     NSIndexPath *selected = [self.tableView indexPathForSelectedRow];
     if (selected){
+        CGPoint currentOffset = (_offsetBeforeDisapear.x == 0) ? _offsetBeforeDisapear : self.tableView.contentOffset;
         [self.tableView reloadRowsAtIndexPaths:@[selected] withRowAnimation:UITableViewRowAnimationNone];
         [self.tableView selectRowAtIndexPath:selected animated:NO scrollPosition:UITableViewScrollPositionNone];
         [self.tableView selectRowAtIndexPath:nil animated:YES scrollPosition:UITableViewScrollPositionNone];
+        [self.tableView setContentOffset:currentOffset animated:NO];
     }
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(contentSizeCategoryChanged:)
                                                  name:UIContentSizeCategoryDidChangeNotification
@@ -134,6 +143,12 @@
                                              selector:@selector(keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    _offsetBeforeDisapear = self.tableView.contentOffset;
 }
 
 -(void)viewDidDisappear:(BOOL)animated
@@ -279,6 +294,25 @@
     if ([[formRow cellForFormController:self] respondsToSelector:@selector(formDescriptorCellDidSelectedWithFormController:)]){
         [[formRow cellForFormController:self] formDescriptorCellDidSelectedWithFormController:self];
     }
+    
+    [[self.tableView visibleCells] enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if([obj isKindOfClass:[XLFormBaseCell class]])
+        {
+            XLFormBaseCell *c = (XLFormBaseCell *)obj;
+            if(![c.rowDescriptor.tag isEqualToString:formRow.tag]) c.showSelection = NO;
+        }
+    }];
+    
+    if(!formRow.showSelection && self.tableView.editing)
+    {
+        XLFormBaseCell *cell = (XLFormBaseCell *)[formRow cellForFormController:self];
+        cell.showSelection = YES;
+    }
+    else
+    {
+        XLFormBaseCell *cell = (XLFormBaseCell *)[formRow cellForFormController:self];
+        cell.showSelection = NO;
+    }
 }
 
 -(UITableViewRowAnimation)insertRowAnimationForRow:(XLFormRowDescriptor *)formRow
@@ -296,7 +330,7 @@
 
 -(UITableViewRowAnimation)insertRowAnimationForSection:(XLFormSectionDescriptor *)formSection
 {
-    return UITableViewRowAnimationAutomatic;
+    return UITableViewRowAnimationNone;
 }
 
 -(UITableViewRowAnimation)deleteRowAnimationForSection:(XLFormSectionDescriptor *)formSection
@@ -331,6 +365,11 @@
 
 #pragma mark - Private
 
+- (void)fakeTextViewTapped:(XLFormRowDescriptor *)row
+{
+    
+}
+
 - (void)contentSizeCategoryChanged:(NSNotification *)notification
 {
     [self.tableView reloadData];
@@ -339,6 +378,7 @@
 - (void)keyboardWillShow:(NSNotification *)notification
 {
     UIView * firstResponderView = [self.tableView findFirstResponder];
+    if(firstResponderView == nil) return;
     UITableViewCell<XLFormDescriptorCell> * cell = [firstResponderView formDescriptorCell];
     if (cell){
         NSDictionary *keyboardInfo = [notification userInfo];
@@ -364,6 +404,7 @@
 - (void)keyboardWillHide:(NSNotification *)notification
 {
     UIView * firstResponderView = [self.tableView findFirstResponder];
+    if(firstResponderView == nil) return;
     UITableViewCell<XLFormDescriptorCell> * cell = [firstResponderView formDescriptorCell];
     if (cell){
         NSDictionary *keyboardInfo = [notification userInfo];
@@ -442,6 +483,18 @@
     return formDescriptorCell;
 }
 
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    XLFormRowDescriptor * rowDescriptor = [self.form formRowAtIndex:indexPath];
+    
+//    // Prevent the cell from inheriting the Table View's margin settings
+//    if ([cell respondsToSelector:@selector(setPreservesSuperviewLayoutMargins:)]) {
+//        [cell setPreservesSuperviewLayoutMargins:NO];
+//    }
+    
+    cell.separatorInset = UIEdgeInsetsMake(0.f, (rowDescriptor.hideSeparator) ? cell.bounds.size.width : 15.0, 0.f, 0.f);
+}
+
 
 -(BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -501,6 +554,7 @@
     else if (!([[row cellForFormController:self] respondsToSelector:@selector(formDescriptorCellBecomeFirstResponder)] && [[row cellForFormController:self] formDescriptorCellBecomeFirstResponder])){
         [self.tableView endEditing:YES];
     }
+    
     [self didSelectFormRow:row];
 }
 
@@ -566,8 +620,22 @@
 
 #pragma mark - UITextViewDelegate
 
+-(void)textViewDidBeginEditing:(UITextView *)textView
+{
+}
+
 -(void)textViewDidEndEditing:(UITextView *)textView
 {
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    return YES;
+}
+
+- (void)textViewDidChange:(UITextView *)textView
+{
+    
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -583,6 +651,28 @@
         }
     }
     [self.tableView endEditing:YES];
+    
+    [self removeAllSelectionIndicators];
+}
+
+- (void)removeAllSelectionIndicators
+{
+    for (XLFormSectionDescriptor * section in self.form.formSections){
+        for (XLFormRowDescriptor * row in section.formRows) {
+            XLFormBaseCell *cell = (XLFormBaseCell *)[row cellForFormController:self];
+            
+            if(![cell isKindOfClass:[XLFormBaseCell class]]) continue;
+            
+            if(cell)
+            {
+                cell.showSelection = NO;
+            }
+            else
+            {
+                row.showSelection = NO;
+            }
+        }
+    }
 }
 
 

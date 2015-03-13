@@ -95,9 +95,9 @@ NSString *const kFormTextViewCellPlaceholder = @"placeholder";
 {
     [super update];
     self.textView.delegate = self;
-    self.label.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-    self.textView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-    self.textView.placeHolderLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    //self.label.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    //self.textView.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+    //self.textView.placeHolderLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     self.textView.keyboardType = UIKeyboardTypeDefault;
     self.textView.text = self.rowDescriptor.value;
     [self.textView setEditable:!self.rowDescriptor.disabled];
@@ -141,6 +141,16 @@ NSString *const kFormTextViewCellPlaceholder = @"placeholder";
 
 #pragma mark - UITextViewDelegate
 
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+{
+    return [self.formViewController textView:textView shouldChangeTextInRange:range replacementText:text];
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView
+{
+    [self.formViewController textViewDidBeginEditing:textView];
+}
+
 -(void)textViewDidEndEditing:(UITextView *)textView{
     if([self.textView.text length] > 0) {
         self.rowDescriptor.value = self.textView.text;
@@ -156,6 +166,8 @@ NSString *const kFormTextViewCellPlaceholder = @"placeholder";
     } else {
         self.rowDescriptor.value = nil;
     }
+    
+    [self.formViewController textViewDidChange:textView];
 }
 
 @end

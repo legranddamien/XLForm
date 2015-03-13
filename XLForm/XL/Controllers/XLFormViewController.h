@@ -71,4 +71,11 @@
 
 -(void)performFormSeletor:(SEL)selector withObject:(id)sender;
 
+- (void)removeAllSelectionIndicators;
+
+- (void)keyboardWillShow:(NSNotification *)notification;
+- (void)keyboardWillHide:(NSNotification *)notification;
+
+- (void)fakeTextViewTapped:(XLFormRowDescriptor *)row;
+
 @end

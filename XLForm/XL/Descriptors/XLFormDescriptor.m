@@ -192,6 +192,18 @@ NSString * const XLValidationStatusErrorKey = @"XLValidationStatusErrorKey";
     return [self objectInFormSectionsAtIndex:index];
 }
 
+-(XLFormSectionDescriptor *)formSectionForRowTag:(NSString *)tag
+{
+    for (XLFormSectionDescriptor * section in self.formSections){
+        for (XLFormRowDescriptor * row in section.formRows) {
+            if ([row.tag isEqualToString:tag]){
+                return section;
+            }
+        }
+    }
+    return nil;
+}
+
 -(NSIndexPath *)indexPathOfFormRow:(XLFormRowDescriptor *)formRow
 {
     for (XLFormSectionDescriptor * section in self.formSections){

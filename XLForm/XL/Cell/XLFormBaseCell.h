@@ -35,6 +35,8 @@
 
 @property (nonatomic, weak) XLFormRowDescriptor * rowDescriptor;
 
+@property (nonatomic) BOOL showSelection;
+
 -(XLFormViewController *)formViewController;
 
 @end

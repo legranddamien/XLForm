@@ -69,6 +69,7 @@ typedef NS_ENUM(NSInteger, XLFormErrorCode)
 -(XLFormRowDescriptor *)formRowAtIndex:(NSIndexPath *)indexPath;
 -(XLFormRowDescriptor *)formRowWithHash:(NSUInteger)hash;
 -(XLFormSectionDescriptor *)formSectionAtIndex:(NSUInteger)index;
+-(XLFormSectionDescriptor *)formSectionForRowTag:(NSString *)tag;
 
 
 -(NSIndexPath *)indexPathOfFormRow:(XLFormRowDescriptor *)formRow;

@@ -133,10 +133,10 @@
     
     self.textField.text = self.rowDescriptor.value ? [self.rowDescriptor.value displayText] : self.rowDescriptor.noValueDisplayText;
     [self.textField setEnabled:!self.rowDescriptor.disabled];
-    self.textLabel.textColor  = self.rowDescriptor.disabled ? [UIColor grayColor] : [UIColor blackColor];
-    self.textField.textColor = self.rowDescriptor.disabled ? [UIColor grayColor] : [UIColor blackColor];
-    self.textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
-    self.textField.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+//    self.textLabel.textColor  = self.rowDescriptor.disabled ? [UIColor grayColor] : [UIColor blackColor];
+//    self.textField.textColor = self.rowDescriptor.disabled ? [UIColor grayColor] : [UIColor blackColor];
+//    self.textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
+//    self.textField.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
 }
 
 -(BOOL)formDescriptorCellBecomeFirstResponder
@@ -175,6 +175,7 @@
     [self.textLabel setContentHuggingPriority:500 forAxis:UILayoutConstraintAxisHorizontal];
     [result addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[_textLabel]-[_textField]" options:NSLayoutFormatAlignAllBaseline metrics:0 views:NSDictionaryOfVariableBindings(_textLabel, _textField)]];
     [result addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-12-[_textField]-12-|" options:NSLayoutFormatAlignAllBaseline metrics:nil views:NSDictionaryOfVariableBindings(_textField)]];
+    
     return result;
 }
 
