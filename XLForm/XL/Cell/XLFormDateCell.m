@@ -92,7 +92,8 @@
     self.selectionStyle = self.rowDescriptor.disabled ? UITableViewCellSelectionStyleNone : UITableViewCellSelectionStyleDefault;
     
     self.textLabel.text = [NSString stringWithFormat:@"%@%@", self.rowDescriptor.title, self.rowDescriptor.required && self.rowDescriptor.sectionDescriptor.formDescriptor.addAsteriskToRequiredRowsTitle ? @"*" : @""];
-    self.detailTextLabel.text = [self valueDisplayText];
+    [self setTextToDetail:[self valueDisplayText]];
+    //self.detailTextLabel.text = [self valueDisplayText];
     //self.textLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     //self.detailTextLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     
@@ -117,6 +118,10 @@
             [self setModeToDatePicker:datePickerCell.datePicker];
             if (self.rowDescriptor.value){
                 [datePickerCell.datePicker setDate:self.rowDescriptor.value];
+            }
+            else
+            {
+                [self datePickerValueChanged:datePickerCell.datePicker];
             }
             [datePickerCell.datePicker addTarget:self action:@selector(datePickerValueChanged:) forControlEvents:UIControlEventValueChanged];
             [formSection addFormRow:datePickerRowDescriptor afterRow:self.rowDescriptor];
@@ -202,10 +207,34 @@
 
 - (void)datePickerValueChanged:(UIDatePicker *)sender
 {
-    self.detailTextLabel.text = [self formattedDate:sender.date];
+    [self setTextToDetail:[self formattedDate:sender.date]];
+    
     self.rowDescriptor.value = sender.date;
     [self setNeedsLayout];
     
+}
+
+- (void)setTextToDetail:(NSString *)text
+{
+    if(text == nil)
+    {
+        self.detailTextLabel.text = text;
+    }
+    else
+    {
+        NSDictionary *attributes;
+        
+        if(_showError)
+        {
+            attributes = @{NSStrikethroughStyleAttributeName : @1, NSForegroundColorAttributeName : [UIColor colorWithRed:0.890 green:0.204 blue:0.141 alpha:1.000]};
+        }
+        else
+        {
+            attributes = @{NSStrikethroughStyleAttributeName : @0, NSForegroundColorAttributeName : [UIColor colorWithWhite:0.133 alpha:1.000]};
+        }
+        
+        self.detailTextLabel.attributedText = [[NSAttributedString alloc] initWithString:text attributes:attributes];
+    }
 }
 
 -(void)setFormDatePickerMode:(XLFormDateDatePickerMode)formDatePickerMode

@@ -25,7 +25,7 @@
 
 #import "NSObject+XLFormAdditions.h"
 #import "XLFormOptionsViewController.h"
-#import "XLFormRightDetailCell.h"
+#import "XLFormDetailCell.h"
 #import "XLForm.h"
 #import "NSObject+XLFormAdditions.h"
 #import "NSArray+XLFormAdditions.h"
@@ -71,11 +71,13 @@
 {
     [super viewDidLoad];
     // register option cell
-    [self.tableView registerClass:[XLFormRightDetailCell class] forCellReuseIdentifier:CELL_REUSE_IDENTIFIER];
+    [self.tableView registerClass:[XLFormDetailCell class] forCellReuseIdentifier:CELL_REUSE_IDENTIFIER];
     
     [_rowDescriptor.selectorControllerConfig enumerateKeysAndObjectsUsingBlock:^(NSString *keyPath, id value, BOOL * __unused stop) {
         [self setValue:(value == [NSNull null]) ? nil : value forKeyPath:keyPath];
     }];
+    
+    _titleFooterSection = _rowDescriptor.selectorFooter;
 }
 
 
@@ -88,9 +90,11 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    XLFormRightDetailCell * cell = [tableView dequeueReusableCellWithIdentifier:CELL_REUSE_IDENTIFIER forIndexPath:indexPath];
+    XLFormDetailCell * cell = [tableView dequeueReusableCellWithIdentifier:CELL_REUSE_IDENTIFIER forIndexPath:indexPath];
     id cellObject =  [[self selectorOptions] objectAtIndex:indexPath.row];
     cell.textLabel.text = [self valueDisplayTextForOption:cellObject];
+    cell.detailTextLabel.text = [self valueDisplayDetailTextForOption:cellObject];
+    cell.detailTextLabel.preferredMaxLayoutWidth = cell.detailTextLabel.bounds.size.width;
     if ([self.rowDescriptor.rowType isEqualToString:XLFormRowDescriptorTypeMultipleSelector] || [self.rowDescriptor.rowType isEqualToString:XLFormRowDescriptorTypeMultipleSelectorPopover]){
         cell.accessoryType = ([self selectedValuesContainsOption:cellObject] ? UITableViewCellAccessoryCheckmark : UITableViewCellAccessoryNone);
     }
@@ -121,8 +125,8 @@
     return self.titleHeaderSection;
 }
 
-#pragma mark - UITableViewDelegate
 
+#pragma mark - UITableViewDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -220,6 +224,11 @@
         }
     }
     return [option displayText];
+}
+
+-(NSString *)valueDisplayDetailTextForOption:(id)option
+{
+    return [option displayDetailText];
 }
 
 #pragma mark - Helpers

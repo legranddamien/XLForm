@@ -78,6 +78,7 @@ typedef NS_ENUM(NSUInteger, XLFormPresentationMode) {
 @property NSString * noValueDisplayText;
 @property NSString * selectorTitle;
 @property NSArray * selectorOptions;
+@property NSString * selectorFooter;
 @property  (nonatomic) NSMutableDictionary * selectorControllerConfig;
 @property  (nonatomic) NSMutableDictionary * selectorControllerCellConfig;
 
@@ -123,6 +124,9 @@ typedef NS_ENUM(NSUInteger, XLFormPresentationMode) {
 
 -(NSString *)formDisplayText;
 -(id)formValue;
+
+@optional
+- (NSString *)formDisplayDetailText;
 
 @end
 

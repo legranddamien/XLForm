@@ -28,6 +28,7 @@
 @interface NSObject (XLFormAdditions)
 
 -(NSString *)displayText;
+-(NSString *)displayDetailText;
 -(id)valueData;
 
 @end

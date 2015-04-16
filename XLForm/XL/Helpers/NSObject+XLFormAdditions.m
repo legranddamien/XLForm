@@ -40,6 +40,17 @@
     return nil;
 }
 
+-(NSString *)displayDetailText
+{
+    if ([self isKindOfClass:[NSString class]] || [self isKindOfClass:[NSNumber class]]){
+        return [self description];
+    }
+    if ([self conformsToProtocol:@protocol(XLFormOptionObject)] && [self respondsToSelector:@selector(formDisplayDetailText)]){
+        return [(id<XLFormOptionObject>)self formDisplayDetailText];
+    }
+    return nil;
+}
+
 -(id)valueData
 {
     if ([self isKindOfClass:[NSString class]] || [self isKindOfClass:[NSNumber class]] || [self isKindOfClass:[NSDate class]]){
