@@ -117,7 +117,15 @@
             XLFormDatePickerCell * datePickerCell = (XLFormDatePickerCell *)[datePickerRowDescriptor cellForFormController:controller];
             [self setModeToDatePicker:datePickerCell.datePicker];
             if (self.rowDescriptor.value){
-                [datePickerCell.datePicker setDate:self.rowDescriptor.value];
+                if(((NSDate *)self.rowDescriptor.value).timeIntervalSince1970 < datePickerCell.datePicker.minimumDate.timeIntervalSince1970)
+                {
+                    [datePickerCell.datePicker setDate:datePickerCell.datePicker.minimumDate];
+                    [self datePickerValueChanged:datePickerCell.datePicker];
+                }
+                else
+                {
+                    [datePickerCell.datePicker setDate:self.rowDescriptor.value];
+                }
             }
             else
             {
@@ -142,6 +150,11 @@
 
 #pragma mark - helpers
 
+- (void)setMinimumDate:(NSDate *)minimumDate
+{
+    _minimumDate = minimumDate;
+}
+
 -(NSString *)valueDisplayText
 {
     return self.rowDescriptor.value ? [self formattedDate:self.rowDescriptor.value] : self.rowDescriptor.noValueDisplayText;
@@ -150,9 +163,15 @@
 
 - (NSString *)formattedDate:(NSDate *)date
 {
+    if(self.dateFormatter == nil && self.rowDescriptor.cellConfig && self.rowDescriptor.cellConfig[@"dateFormatter"])
+    {
+        self.dateFormatter = self.rowDescriptor.cellConfig[@"dateFormatter"];
+    }
+    
     if (self.dateFormatter){
         return [self.dateFormatter stringFromDate:date];
     }
+    
     if ([self.rowDescriptor.rowType isEqualToString:XLFormRowDescriptorTypeDate] || [self.rowDescriptor.rowType isEqualToString:XLFormRowDescriptorTypeDateInline]){
         return [NSDateFormatter localizedStringFromDate:date dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterNoStyle];
     }
