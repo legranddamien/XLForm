@@ -42,4 +42,7 @@ typedef NS_ENUM(NSUInteger, XLFormDateDatePickerMode) {
 @property (nonatomic) NSInteger minuteInterval;
 @property (nonatomic) BOOL showError;
 
+-(UIDatePicker *)datePicker;
+- (void)updateDatePickerDate:(NSDate *)date forController:(XLFormViewController *)controller;
+
 @end

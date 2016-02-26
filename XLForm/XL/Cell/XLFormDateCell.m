@@ -32,6 +32,8 @@
 @interface XLFormDateCell()
 
 @property (nonatomic) UIDatePicker *datePicker;
+@property (nonatomic, strong) XLFormDatePickerCell *datePickerCell;
+@property (nonatomic, strong) NSDate *dateToPutOnDatePicker;
 
 @end
 
@@ -98,6 +100,27 @@
     //self.detailTextLabel.font = [UIFont preferredFontForTextStyle:UIFontTextStyleBody];
     
 }
+- (void)updateDatePickerDate:(NSDate *)date forController:(XLFormViewController *)controller
+{
+    NSIndexPath * selectedRowPath = [controller.form indexPathOfFormRow:self.rowDescriptor];
+    NSIndexPath * nextRowPath = [NSIndexPath indexPathForRow:(selectedRowPath.row + 1) inSection:selectedRowPath.section];
+    XLFormRowDescriptor * datePickerCellDescriptor = [controller.form formRowAtIndex:nextRowPath];
+    XLFormDatePickerCell * datePickerCell = nil;
+    
+    if(datePickerCellDescriptor)
+    {
+        datePickerCell = (XLFormDatePickerCell *)[datePickerCellDescriptor cellForFormController:controller];
+    }
+    
+    if(datePickerCell == nil)
+    {
+        _dateToPutOnDatePicker = date;
+    }
+    else
+    {
+        [datePickerCell.datePicker setDate:date animated:YES];
+    }
+}
 
 -(void)formDescriptorCellDidSelectedWithFormController:(XLFormViewController *)controller
 {
@@ -116,7 +139,15 @@
             XLFormRowDescriptor * datePickerRowDescriptor = [XLFormRowDescriptor formRowDescriptorWithTag:nil rowType:XLFormRowDescriptorTypeDatePicker];
             XLFormDatePickerCell * datePickerCell = (XLFormDatePickerCell *)[datePickerRowDescriptor cellForFormController:controller];
             [self setModeToDatePicker:datePickerCell.datePicker];
-            if (self.rowDescriptor.value){
+            
+            BOOL valueChanged = NO;
+            
+            if(_dateToPutOnDatePicker)
+            {
+                [datePickerCell.datePicker setDate:_dateToPutOnDatePicker];
+                _dateToPutOnDatePicker = nil;
+            }
+            else if (self.rowDescriptor.value){
                 if(((NSDate *)self.rowDescriptor.value).timeIntervalSince1970 < datePickerCell.datePicker.minimumDate.timeIntervalSince1970)
                 {
                     [datePickerCell.datePicker setDate:datePickerCell.datePicker.minimumDate];
@@ -129,10 +160,14 @@
             }
             else
             {
-                [self datePickerValueChanged:datePickerCell.datePicker];
+                valueChanged = YES;
             }
+            
             [datePickerCell.datePicker addTarget:self action:@selector(datePickerValueChanged:) forControlEvents:UIControlEventValueChanged];
             [formSection addFormRow:datePickerRowDescriptor afterRow:self.rowDescriptor];
+            
+            _datePickerCell = datePickerCell;
+            if(valueChanged) [self datePickerValueChanged:datePickerCell.datePicker];
         }
         [controller.tableView deselectRowAtIndexPath:[controller.form indexPathOfFormRow:self.rowDescriptor] animated:YES];
     }
