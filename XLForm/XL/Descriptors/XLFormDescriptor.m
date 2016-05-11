@@ -27,8 +27,8 @@
 #import "NSObject+XLFormAdditions.h"
 #import "XLFormDescriptor.h"
 
-NSString * const XLFormErrorDomain = @"XLFormErrorDomain";
-NSString * const XLValidationStatusErrorKey = @"XLValidationStatusErrorKey";
+static NSString * const XLFormErrorDomain = @"XLFormErrorDomain";
+static NSString * const XLValidationStatusErrorKey = @"XLValidationStatusErrorKey";
 
 @interface XLFormDescriptor()
 
