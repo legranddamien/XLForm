@@ -28,7 +28,7 @@
 #import "NSObject+XLFormAdditions.h"
 #import "XLFormLeftRightSelectorCell.h"
 
-@interface XLFormLeftRightSelectorCell() <UIActionSheetDelegate>
+@interface XLFormLeftRightSelectorCell()
 
 @end
 
@@ -182,29 +182,29 @@
 
 -(void)leftButtonPressed:(UIButton *)leftButton
 {
-    UIActionSheet * actionSheet = [[UIActionSheet alloc] initWithTitle:self.rowDescriptor.selectorTitle delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
-    actionSheet.tag = [self.rowDescriptor hash];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:self.rowDescriptor.selectorTitle
+                                                                   message:nil
+                                                            preferredStyle:([self.rowDescriptor.rowType isEqualToString:XLFormRowDescriptorTypeSelectorActionSheet]) ? UIAlertControllerStyleActionSheet : UIAlertControllerStyleAlert];
+    
+    UIPopoverPresentationController *popup = alert.popoverPresentationController;
+    popup.sourceView = self.formViewController.view;
+    popup.sourceRect = self.formViewController.view.bounds;
+    
     for (XLFormLeftRightSelectorOption * leftOption in self.rowDescriptor.selectorOptions) {
-        [actionSheet addButtonWithTitle:[leftOption.leftValue displayText]];
+        
+        [alert addAction:[UIAlertAction actionWithTitle:[leftOption displayText] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            if (![self.rowDescriptor.leftRightSelectorLeftOptionSelected isEqual:[self leftOptionForDescription:[leftOption displayText]].leftValue]){
+                self.rowDescriptor.value = nil;
+                self.rowDescriptor.leftRightSelectorLeftOptionSelected = [self leftOptionForDescription:[leftOption displayText]].leftValue;
+                [self update];
+                
+            }
+        }]];
     }
-    actionSheet.cancelButtonIndex = [actionSheet addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-    [actionSheet showInView:self.formViewController.view];
+    
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", nil) style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self.formViewController presentViewController:alert animated:YES completion:nil];
 }
-
-#pragma mark - UIActionSheetDelegate
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if ([actionSheet cancelButtonIndex] != buttonIndex){
-        NSString * title = [actionSheet buttonTitleAtIndex:buttonIndex];
-        if (![self.rowDescriptor.leftRightSelectorLeftOptionSelected isEqual:[self leftOptionForDescription:title].leftValue]){            
-            self.rowDescriptor.value = nil;
-            self.rowDescriptor.leftRightSelectorLeftOptionSelected = [self leftOptionForDescription:title].leftValue;
-            [self update];
-
-        }
-    }
-}
-
 
 @end

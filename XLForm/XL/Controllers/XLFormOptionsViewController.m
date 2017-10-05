@@ -165,8 +165,7 @@
             cell.accessoryType = UITableViewCellAccessoryCheckmark;
         }
         if (self.popoverController){
-            [self.popoverController dismissPopoverAnimated:YES];
-            [self.popoverController.delegate popoverControllerDidDismissPopover:self.popoverController];
+            [self.popoverController dismissViewControllerAnimated:YES completion:nil];
         }
         else if ([self.parentViewController isKindOfClass:[UINavigationController class]]){
             [self.navigationController popViewControllerAnimated:YES];
