@@ -42,6 +42,9 @@
 {
     if (_datePicker) return _datePicker;
     _datePicker = [UIDatePicker autolayoutView];
+    if (@available(iOS 14.0, *)) {
+        _datePicker.preferredDatePickerStyle = UIDatePickerStyleWheels
+    }
     return _datePicker;
 }
 
